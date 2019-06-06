@@ -5,44 +5,78 @@ import "./App.css";
 
 class App extends Component {
   constructor() {
-    super(null);
+    super();
     this.state = {
       chartData: {}
     };
+
+    this.count = 0;
+    this.data = pigData["PIG POPULATIONS"].reduce((acc, curr) => {
+      const { year, island, pigPopulation } = curr;
+      if (acc.hasOwnProperty(year)) {
+        acc[year] = [...acc[year], { island, pigPopulation }];
+        return acc;
+      }
+      acc[year] = [{ island, pigPopulation }];
+      return acc;
+    }, {});
+    this.years = Object.keys(this.data).length;
+
+    this.timer = setInterval(() => {
+      this.getChartData();
+    }, 2000);
+
+  }
+
+  componentDidMount() {
+    // this.timer = setInterval(() => {
+    //   this.getChartData();
+    // }, 2000);
   }
 
   componentWillMount() {
+    this.timer = setInterval(() => {
+      this.getChartData();
+    }, 2000);
     this.getChartData();
+  }
+  randomHsl(){
+    return `hsla(${Math.random() * 360}, 100%, 50%, 1)`;
   }
 
   getChartData() {
-    this.setState({
-      chartData: {
-        labels: [
-          "Boston",
-          "Worcester",
-          "Springfield",
-          "Lowell",
-          "Cambridge",
-          "New Bedford"
-        ],
-        datasets: [
-          {
-            label: "Population",
-            data: [617594, 181045, 153060, 106519, 105162, 95072],
-            backgroundColor: [
-              "rgba(255, 99, 132, 0.6)",
-              "rgba(54, 162, 235, 0.6)",
-              "rgba(255, 206, 86, 0.6)",
-              "rgba(75, 192, 192, 0.6)",
-              "rgba(153, 102, 255, 0.6)",
-              "rgba(255, 159, 64, 0.6)",
-              "rgba(255, 99, 132, 0.6)"
-            ]
-          }
-        ]
+    const year = Object.keys(this.data)[this.count];
+    const yearData = this.data[year];
+    const islands = yearData.map(item => item.island);
+    const pigPopulations = yearData.map(item => item.pigPopulation);
+    console.log("yearData", yearData);
+    console.log("islands", islands);
+    console.log("pigPopulations", pigPopulations);
+    console.log("this.count", this.count);
+    this.setState((state, { year, islands=[], pigPopulations }) =>
+      ({
+        chartData: {
+          labels: ['Boston', 'Worcester', 'Springfield', 'Lowell', 'Cambridge', 'New Bedford'],
+          datasets: [
+            {
+              label: "Population",
+              data: [
+                617594,
+                181045,
+                153060,
+                106519,
+                105162,
+                95072
+              ],
+              backgroundColor: [...islands.map(item => this.randomHsl())]
+            }
+          ]
+        }
+      }),
+      () => {
+        this.count = this.count < this.years - 1 ? this.count + 1 : 0;
       }
-    });
+    );
   }
 
   render() {
@@ -59,67 +93,3 @@ class App extends Component {
 }
 
 export default App;
-{
-  /*<div className="App">*/
-}
-{
-  /*<p className="App-intro">*/
-}
-{
-  /*To get started, edit <code>src/App.js</code> and save to reload.*/
-}
-{
-  /*</p>*/
-}
-
-{
-  /*<table>*/
-}
-{
-  /*<tbody>*/
-}
-{
-  /*<tr>*/
-}
-{
-  /*<th>Year</th>*/
-}
-{
-  /*<th>Island</th>*/
-}
-{
-  /*<th>Population</th>*/
-}
-{
-  /*</tr>*/
-}
-{
-  /*{pigData["PIG POPULATIONS"].map((datum, index) => (*/
-}
-{
-  /*<tr key={index}>*/
-}
-{
-  /*<td>{datum.year}</td>*/
-}
-{
-  /*<td>{datum.island}</td>*/
-}
-{
-  /*<td>{datum.pigPopulation}</td>*/
-}
-{
-  /*</tr>*/
-}
-{
-  /*))}*/
-}
-{
-  /*</tbody>*/
-}
-{
-  /*</table>*/
-}
-{
-  /*</div>*/
-}

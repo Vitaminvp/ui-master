@@ -17,7 +17,12 @@ class Chart extends Component {
   };
 
   render() {
-      const {displayTitle, location, displayLegend ,legendPosition} = this.props;
+    const {
+      displayTitle,
+      location,
+      displayLegend,
+      legendPosition
+    } = this.props;
     return (
       <div className="chart">
         <Bar
