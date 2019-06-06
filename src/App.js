@@ -48,27 +48,21 @@ class App extends Component {
     const year = Object.keys(this.data)[this.count];
     const yearData = this.data[year];
     const islands = yearData.map(item => item.island);
-    const pigPopulations = yearData.map(item => item.pigPopulation);
+    const pigPopulations = yearData.map(item => +item.pigPopulation);
     console.log("yearData", yearData);
     console.log("islands", islands);
     console.log("pigPopulations", pigPopulations);
     console.log("this.count", this.count);
-    this.setState((state, { year, islands=[], pigPopulations }) =>
+    console.log("...new Array(islands.length).map(this.randomHsl)", (new Array(islands.length)).map((item) => this.randomHsl()));
+    this.setState((state, { year, islands=[], pigPopulations=[] }) =>
       ({
         chartData: {
           labels: ['Boston', 'Worcester', 'Springfield', 'Lowell', 'Cambridge', 'New Bedford'],
           datasets: [
             {
               label: "Population",
-              data: [
-                617594,
-                181045,
-                153060,
-                106519,
-                105162,
-                95072
-              ],
-              backgroundColor: [...islands.map(item => this.randomHsl())]
+              data: pigPopulations,
+              backgroundColor: [...new Array(islands.length).map(this.randomHsl)]
             }
           ]
         }
@@ -80,6 +74,7 @@ class App extends Component {
   }
 
   render() {
+    console.log("this.state.chartData", this.state.chartData);
     return (
       <div className="App">
         <Chart
