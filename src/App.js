@@ -37,7 +37,7 @@ class App extends Component {
   componentDidMount() {
     this.timer = setInterval(() => {
       this.getChartData();
-    }, 5000);
+    }, 2000);
   }
 
   componentWillMount() {
@@ -106,7 +106,8 @@ class App extends Component {
           location={year}
           legendPosition="bottom"
         />
-        <button onClick={this.toggleStart}>oh</button>
+        <button onClick={this.toggleStart}>Pause</button>
+        <button onClick={()=> this.componentDidMount()}>start</button>
       </div>
     );
   }
