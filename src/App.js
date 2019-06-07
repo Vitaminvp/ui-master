@@ -10,6 +10,7 @@ class App extends Component {
   constructor() {
     super();
     this.count = 0;
+    this.paused = true;
     this.data = pigData["PIG POPULATIONS"].reduce((acc, curr) => {
       const { year, island, pigPopulation } = curr;
       if (acc.hasOwnProperty(year)) {
@@ -30,8 +31,7 @@ class App extends Component {
         year: defaultYear,
         backgroundColor: [...this.data[defaultYear].map(randomHsl)]
       },
-      previous: {},
-      paused: true
+      previous: {}
     };
   }
 
@@ -43,10 +43,8 @@ class App extends Component {
 
   startTimer = () => {
     clearInterval(this.timer);
+    this.paused = false;
     this.timer = setInterval(() => {
-      this.setState({
-        paused: false
-      });
       this.getChartData();
     }, duration);
   };
@@ -60,7 +58,7 @@ class App extends Component {
       const index = this.years.indexOf(year);
       if (~index) {
         this.count = index;
-        if (paused === true) {
+        if (paused === "true") {
           this.getChartData();
         } else {
           this.startTimer();
@@ -110,7 +108,7 @@ class App extends Component {
   }
 
   setHref = () => {
-    const url = `${window.location.origin}/?paused=${this.state.paused}&year=${
+    const url = `${window.location.origin}/?paused=${this.paused}&year=${
       this.state.current.year
     }`;
     window.history.pushState(null, null, url);
@@ -118,7 +116,7 @@ class App extends Component {
 
   toggleStart = () => {
     clearInterval(this.timer);
-    const { paused } = this.state;
+    const { paused } = this;
     if (paused) {
       this.timer = setInterval(() => {
         this.getChartData();
@@ -126,12 +124,8 @@ class App extends Component {
     } else {
       clearInterval(this.timer);
     }
-    this.setState(
-      {
-        paused: !paused
-      },
-      this.setHref
-    );
+    this.paused = !this.paused;
+    this.setHref();
   };
 
   render() {
@@ -151,7 +145,9 @@ class App extends Component {
     } = this.state;
 
     const datasets =
-      prevIsland && prevPigPopulations
+      prevIsland &&
+      prevPigPopulations &&
+      curPigPopulations[0] !== prevPigPopulations[0]
         ? [
             {
               label: prevYear,
@@ -171,13 +167,12 @@ class App extends Component {
               backgroundColor: curBackgroundColor
             }
           ];
-    const { paused } = this.state;
+    const { paused } = this;
 
     const chartData = {
       labels: curIsland,
       datasets
     };
-
     return (
       <Container>
         <div className="App">
@@ -191,7 +186,13 @@ class App extends Component {
               onButtonClick={this.toggleStart}
               icon={paused ? "play" : "pause"}
             />
-            <ProgressBar value={this.count} total={this.years.length} />
+
+            <ProgressBar
+              percent={
+                ((this.count === 0 ? this.years.length : this.count) * 100) /
+                this.years.length
+              }
+            />
           </div>
         </div>
       </Container>

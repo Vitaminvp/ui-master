@@ -1,9 +1,9 @@
 import React from "react";
 import { Progress } from "semantic-ui-react";
 
-const ProgressBar = ({ value, total }) => (
+const ProgressBar = ({ percent }) => (
   <div className="progressWrapper">
-    <Progress indicating value={value} total={total} size="medium" />
+    <Progress indicating  size="medium" percent={percent} />
   </div>
 );
 
