@@ -30,7 +30,7 @@ class Chart extends Component {
           options={{
             title: {
               display: displayTitle,
-              text: "Pig population in " + this.props.location,
+              text: "Pig population in " + location,
               fontSize: 25
             },
             legend: {
