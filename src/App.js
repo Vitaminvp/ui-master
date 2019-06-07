@@ -21,14 +21,19 @@ class App extends Component {
       acc[year] = [{ island, pigPopulation }];
       return acc;
     }, {});
+
     this.years = Object.keys(this.data);
+
     this.state = {
-      islands: [...this.data[defaultYear].map(item => item.island)],
-      pigPopulations: [
-        ...this.data[defaultYear].map(item => item.pigPopulation)
-      ],
-      year: defaultYear,
-      backgroundColor: [...this.data[defaultYear].map(randomHsl)],
+      current: {
+        islands: [...this.data[defaultYear].map(item => item.island)],
+        pigPopulations: [
+          ...this.data[defaultYear].map(item => item.pigPopulation)
+        ],
+        year: defaultYear,
+        backgroundColor: [...this.data[defaultYear].map(randomHsl)]
+      },
+      previous: {},
       paused: true
     };
   }
@@ -40,12 +45,16 @@ class App extends Component {
       }, duration);
     }
 
-    console.log("this.data", this.data);
+    // console.log("this.data", this.data);
+    // window.location.search = `?paused=true&year=2004`;
+    // window.location.href = `${window.location.origin}/?paused=true&year=2004`
   }
 
   componentWillMount() {
     const { search } = window.location;
     const params = new URLSearchParams(search);
+    console.log("window.location", window.location);
+    //
     const paused = params.get("paused");
     const year = params.get("year");
     if (paused && year) {
@@ -68,65 +77,99 @@ class App extends Component {
     const islands = yearData.map(item => item.island);
     const pigPopulations = yearData.map(item => item.pigPopulation);
     this.count = this.count < this.years.length - 1 ? this.count + 1 : 0;
+
     this.setState(
-      {
-        islands,
-        pigPopulations,
-        year,
-        backgroundColor: [...islands.map(randomHsl)]
-      },
-      () => {
-        console.log("this.state", this.state);
-      }
-    );
+      state => {
+        const {
+          current: {
+            islands: curIsland,
+            pigPopulations: curPigPopulations,
+            year: curYear,
+            backgroundColor: curBackgroundColor
+          }
+        } = state;
+
+        return {
+          current: {
+            islands,
+            pigPopulations,
+            year,
+            backgroundColor: [...islands.map(randomHsl)]
+          },
+          previous: {
+            islands: [...curIsland],
+            pigPopulations: [...curPigPopulations],
+            year: curYear,
+            backgroundColor: [...curBackgroundColor]
+          }
+        };
+      });
+
+    this.setHref();
   }
+
+  setHref() {
+    const url = `${window.location.origin}/?paused=${this.state.paused}&year=${this.state.current.year}`;
+    window.history.pushState(null, null, url);
+  }
+
   toggleStart = () => {
     const { paused } = this.state;
     if (paused) {
       this.timer = setInterval(() => {
         this.getChartData();
-        this.dataSets = [this.dataSets[this.dataSets.length - 1]];
       }, duration);
     } else {
       clearInterval(this.timer);
+
     }
     this.setState({
       paused: !paused
-    });
+    }, this.setHref);
+
+
   };
 
   render() {
     const {
-      islands,
-      pigPopulations,
-      year,
-      backgroundColor,
-      paused
+      current: {
+        islands: curIsland,
+        pigPopulations: curPigPopulations,
+        year: curYear,
+        backgroundColor: curBackgroundColor
+      },
+        previous: {
+          islands: prevIsland,
+          pigPopulations: prevPigPopulations,
+          year: prevYear,
+          backgroundColor: prevBackgroundColor
+        }
     } = this.state;
 
-    this.dataSets =
-      this.dataSets.length > 1
-        ? [
-            ...this.dataSets,
-            {
-              label: year,
-              data: pigPopulations,
-              backgroundColor
-            }
-          ].slice(-2)
-        : [
-            ...this.dataSets,
-            {
-              label: year,
-              data: pigPopulations,
-              backgroundColor
-            }
-          ];
+    const datasets = prevIsland && prevPigPopulations ?  [
+      {
+        label: prevYear,
+        data: prevPigPopulations,
+        backgroundColor: prevBackgroundColor
+      },
+      {
+        label: curYear,
+        data: curPigPopulations,
+        backgroundColor: curBackgroundColor
+      },
 
-    console.log("this.dataSets", this.dataSets);
+    ] : [
+      {
+        label: curYear,
+        data: curPigPopulations,
+        backgroundColor: curBackgroundColor
+      }
+    ];
+    const { paused } = this.state;
+
     const chartData = {
-      labels: islands,
-      datasets: this.dataSets
+      labels: curIsland,
+      datasets
     };
     console.log("chartData", chartData);
 
@@ -135,7 +178,7 @@ class App extends Component {
         <div className="App">
           <Chart
             chartData={chartData}
-            location={year}
+            location={curYear}
             legendPosition="bottom"
           />
           <div className="buttonWrapper">
