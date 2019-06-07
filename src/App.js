@@ -10,7 +10,6 @@ class App extends Component {
   constructor() {
     super();
     this.count = 0;
-    this.paused = true;
     this.data = pigData["PIG POPULATIONS"].reduce((acc, curr) => {
       const { year, island, pigPopulation } = curr;
       if (acc.hasOwnProperty(year)) {
@@ -31,7 +30,8 @@ class App extends Component {
         year: defaultYear,
         backgroundColor: [...this.data[defaultYear].map(randomHsl)]
       },
-      previous: {}
+      previous: {},
+      paused: true
     };
   }
 
@@ -43,8 +43,10 @@ class App extends Component {
 
   startTimer = () => {
     clearInterval(this.timer);
-    this.paused = false;
     this.timer = setInterval(() => {
+      this.setState({
+        paused: false
+      });
       this.getChartData();
     }, duration);
   };
@@ -102,13 +104,11 @@ class App extends Component {
           backgroundColor: [...curBackgroundColor]
         }
       };
-    });
-
-    this.setHref();
+    }, this.setHref );
   }
 
   setHref = () => {
-    const url = `${window.location.origin}/?paused=${this.paused}&year=${
+    const url = `${window.location.origin}/?paused=${this.state.paused}&year=${
       this.state.current.year
     }`;
     window.history.pushState(null, null, url);
@@ -116,7 +116,7 @@ class App extends Component {
 
   toggleStart = () => {
     clearInterval(this.timer);
-    const { paused } = this;
+    const { paused } = this.state;
     if (paused) {
       this.timer = setInterval(() => {
         this.getChartData();
@@ -124,8 +124,12 @@ class App extends Component {
     } else {
       clearInterval(this.timer);
     }
-    this.paused = !this.paused;
-    this.setHref();
+    this.setState(
+      {
+        paused: !paused
+      },
+      this.setHref
+    );
   };
 
   render() {
@@ -167,7 +171,7 @@ class App extends Component {
               backgroundColor: curBackgroundColor
             }
           ];
-    const { paused } = this;
+    const { paused } = this.state;
 
     const chartData = {
       labels: curIsland,
