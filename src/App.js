@@ -7,7 +7,18 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      chartData: {}
+      islands: ['Boston', 'Worcester', 'Springfield', 'Lowell', 'Springfield', 'Lowell', 'Cambridge', 'New Bedford'],
+      pigPopulations: [
+        617594,
+        181045,
+        111045,
+        153060,
+        106519,
+        196519,
+        105162,
+        95072
+      ],
+      year: "1999"
     };
 
     this.count = 0;
@@ -21,24 +32,19 @@ class App extends Component {
       return acc;
     }, {});
     this.years = Object.keys(this.data).length;
-
-    this.timer = setInterval(() => {
-      this.getChartData();
-    }, 2000);
-
   }
 
   componentDidMount() {
-    // this.timer = setInterval(() => {
-    //   this.getChartData();
-    // }, 2000);
+    this.timer = setInterval(() => {
+      this.getChartData();
+    }, 5000);
   }
 
   componentWillMount() {
-    this.timer = setInterval(() => {
-      this.getChartData();
-    }, 2000);
-    this.getChartData();
+    // this.timer = setInterval(() => {
+    //   this.getChartData();
+    // }, 5000);
+    //this.getChartData();
   }
   randomHsl(){
     return `hsla(${Math.random() * 360}, 100%, 50%, 1)`;
@@ -48,40 +54,59 @@ class App extends Component {
     const year = Object.keys(this.data)[this.count];
     const yearData = this.data[year];
     const islands = yearData.map(item => item.island);
-    const pigPopulations = yearData.map(item => +item.pigPopulation);
-    console.log("yearData", yearData);
-    console.log("islands", islands);
+    const pigPopulations = yearData.map(item => item.pigPopulation);
+    // console.log("yearData", yearData);
+    // console.log("islands", islands);
     console.log("pigPopulations", pigPopulations);
-    console.log("this.count", this.count);
-    console.log("...new Array(islands.length).map(this.randomHsl)", (new Array(islands.length)).map((item) => this.randomHsl()));
-    this.setState((state, { year, islands=[], pigPopulations=[] }) =>
-      ({
-        chartData: {
-          labels: ['Boston', 'Worcester', 'Springfield', 'Lowell', 'Cambridge', 'New Bedford'],
-          datasets: [
-            {
-              label: "Population",
-              data: pigPopulations,
-              backgroundColor: [...new Array(islands.length).map(this.randomHsl)]
-            }
-          ]
+    // console.log("this.count", this.count);
+    // console.log("...new Array(islands.length).map(this.randomHsl)", (new Array(islands.length)).map((item) => this.randomHsl()));
+    this.count = this.count < this.years - 1 ? this.count + 1 : 0;
+    this.setState({
+          islands,
+          pigPopulations,
+          year
+      }, () =>{
+          console.log("this.state", this.state);
+
         }
-      }),
-      () => {
-        this.count = this.count < this.years - 1 ? this.count + 1 : 0;
-      }
     );
   }
-
+  toggleStart = () => {
+    clearInterval(this.timer);
+  };
+  //
   render() {
-    console.log("this.state.chartData", this.state.chartData);
+    const { islands, pigPopulations, year } = this.state;
+    const  chartData =  {
+      labels: islands,
+      datasets: [
+          {
+            label: year,
+            data: pigPopulations,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+                ]
+          }
+          ]
+    };
+    console.log("chartData", chartData);
+
     return (
       <div className="App">
         <Chart
-          chartData={this.state.chartData}
-          location="Massachusetts"
+          chartData={ chartData }
+
+          location={year}
           legendPosition="bottom"
         />
+        <button onClick={this.toggleStart}>oh</button>
       </div>
     );
   }
