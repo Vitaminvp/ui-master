@@ -1,16 +1,14 @@
 import React, { Component } from "react";
 import pigData from "./wild-pig-data.json";
-import { Chart, Button } from "./Components";
+import { Chart, Button, ProgressBar } from "./Components";
 import "./App.css";
 import { randomHsl } from "./helpers";
 import { defaultYear, duration } from "./constants";
-import ProgressBar from "./Components/Progress";
 import { Container } from "semantic-ui-react";
 
 class App extends Component {
   constructor() {
     super();
-    this.dataSets = [];
     this.count = 0;
     this.data = pigData["PIG POPULATIONS"].reduce((acc, curr) => {
       const { year, island, pigPopulation } = curr;
@@ -22,6 +20,7 @@ class App extends Component {
       return acc;
     }, {});
     this.years = Object.keys(this.data);
+
     this.state = {
       current: {
         islands: [...this.data[defaultYear].map(item => item.island)],
@@ -178,7 +177,6 @@ class App extends Component {
       labels: curIsland,
       datasets
     };
-    console.log("chartData", chartData);
 
     return (
       <Container>
