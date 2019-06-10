@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Bar } from "react-chartjs-2";
+import PropTypes from "prop-types";
 
 class Chart extends Component {
   static defaultProps = {
@@ -14,12 +15,14 @@ class Chart extends Component {
       displayTitle,
       location,
       displayLegend,
-      legendPosition
+      legendPosition,
+      chartData
     } = this.props;
+
     return (
       <div className="chart">
         <Bar
-          data={this.props.chartData}
+          data={chartData}
           options={{
             title: {
               display: displayTitle,
@@ -36,5 +39,13 @@ class Chart extends Component {
     );
   }
 }
+
+Chart.propTypes = {
+  displayTitle: PropTypes.bool,
+  displayLegend: PropTypes.bool,
+  chartData: PropTypes.object.isRequired,
+  location: PropTypes.string,
+  legendPosition: PropTypes.string
+};
 
 export default Chart;
