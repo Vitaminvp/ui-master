@@ -16,9 +16,15 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "test": "jest --watch",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+  },
+  "devDependencies": {
+    "babel-jest": "^24.8.0",
+    "jest": "^24.8.0",
+    "identity-obj-proxy": "^3.0.0"
   }
 }
